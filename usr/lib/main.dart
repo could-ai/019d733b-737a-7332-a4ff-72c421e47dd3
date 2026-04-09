@@ -1,123 +1,471 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const PresentationApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class PresentationApp extends StatelessWidget {
+  const PresentationApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Research Presentation',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF1E3A8A), // Deep blue corporate theme
+          brightness: Brightness.light,
+        ),
+        useMaterial3: true,
+        textTheme: const TextTheme(
+          headlineLarge: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
+          headlineMedium: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
+          bodyLarge: TextStyle(fontSize: 22, height: 1.5),
+          bodyMedium: TextStyle(fontSize: 18, height: 1.5),
+        ),
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => const MyHomePage(title: 'Flutter Demo Home Page'),
+        '/': (context) => const PresentationScreen(),
       },
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+class PresentationScreen extends StatefulWidget {
+  const PresentationScreen({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<PresentationScreen> createState() => _PresentationScreenState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _PresentationScreenState extends State<PresentationScreen> {
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+  late final List<SlideData> _slides;
+
+  @override
+  void initState() {
+    super.initState();
+    _slides = [
+      // 1. Title Slide
+      SlideData(
+        title: '',
+        content: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                'Project Title: AI in Modern Healthcare',
+                style: TextStyle(fontSize: 42, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 40),
+              _buildInfoRow(Icons.person, 'Student Name(s): Jane Doe, John Smith'),
+              const SizedBox(height: 16),
+              _buildInfoRow(Icons.book, 'Course: Advanced Computer Science 401'),
+              const SizedBox(height: 16),
+              _buildInfoRow(Icons.school, 'Guide Name: Dr. Alan Turing'),
+            ],
+          ),
+        ),
+      ),
+
+      // 2. Introduction
+      SlideData(
+        title: 'Introduction',
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildBulletPoint('Background: The rapid integration of Artificial Intelligence in medical diagnostics has transformed patient care over the last decade.'),
+            const SizedBox(height: 24),
+            _buildBulletPoint('Importance of the Study: Understanding the efficacy and limitations of these AI models is crucial for ensuring patient safety, reducing diagnostic errors, and optimizing hospital workflows.'),
+            const SizedBox(height: 24),
+            _buildBulletPoint('Context: This study focuses specifically on predictive models used in early-stage oncology.'),
+          ],
+        ),
+      ),
+
+      // 3. Review of Literature
+      SlideData(
+        title: 'Review of Literature',
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildLiteratureItem(
+              '1. Smith et al. (2022)',
+              'Demonstrated a 15% increase in diagnostic accuracy using Convolutional Neural Networks (CNNs) for MRI scans.',
+            ),
+            const SizedBox(height: 24),
+            _buildLiteratureItem(
+              '2. Johnson & Lee (2023)',
+              'Highlighted the challenges of algorithmic bias in diverse patient populations, emphasizing the need for representative training data.',
+            ),
+            const SizedBox(height: 24),
+            _buildLiteratureItem(
+              '3. Patel Research Group (2023)',
+              'Found that AI-assisted doctors performed 20% faster in routine screenings compared to doctors working without AI assistance.',
+            ),
+          ],
+        ),
+      ),
+
+      // 4. Statement of the Problem
+      SlideData(
+        title: 'Statement of the Problem',
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.red.shade50,
+                border: Border(left: BorderSide(color: Colors.red.shade400, width: 6)),
+                borderRadius: const BorderRadius.only(topRight: Radius.circular(8), bottomRight: Radius.circular(8)),
+              ),
+              child: const Text(
+                'Despite the high accuracy of AI models in controlled environments, their real-world clinical application often suffers from a "performance drop" due to varied data quality and lack of seamless integration into existing hospital IT infrastructure.',
+                style: TextStyle(fontSize: 24, fontStyle: FontStyle.italic),
+              ),
+            ),
+            const SizedBox(height: 32),
+            _buildBulletPoint('High false-positive rates in non-standardized imaging.'),
+            const SizedBox(height: 16),
+            _buildBulletPoint('Resistance to adoption among senior medical staff.'),
+          ],
+        ),
+      ),
+
+      // 5. Objectives of the Study
+      SlideData(
+        title: 'Objectives of the Study',
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'This research aims to achieve the following primary objectives:',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+            ),
+            const SizedBox(height: 24),
+            _buildNumberedPoint('1', 'To evaluate the real-world accuracy of AI diagnostic tools across three different hospital networks.'),
+            const SizedBox(height: 16),
+            _buildNumberedPoint('2', 'To identify the primary technical and cultural barriers to AI adoption in clinical settings.'),
+            const SizedBox(height: 16),
+            _buildNumberedPoint('3', 'To propose a standardized framework for integrating predictive AI models into existing Electronic Health Record (EHR) systems.'),
+          ],
+        ),
+      ),
+
+      // 6. Methodology
+      SlideData(
+        title: 'Methodology',
+        content: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: _buildMethodologyCard(
+                Icons.storage,
+                'Data',
+                'Anonymized patient records and MRI scans from 2020-2023. Total dataset size: 50,000 records.',
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: _buildMethodologyCard(
+                Icons.people,
+                'Sample',
+                'Stratified random sampling of 5,000 patients across 3 demographics. Survey of 150 medical professionals.',
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: _buildMethodologyCard(
+                Icons.build,
+                'Tools',
+                'Python (TensorFlow/PyTorch) for model validation. SPSS for statistical analysis of survey data.',
+              ),
+            ),
+          ],
+        ),
+      ),
+
+      // 7. Findings
+      SlideData(
+        title: 'Findings - Key Results',
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildBulletPoint('AI assistance improved early detection rates by 18%.'),
+            _buildBulletPoint('Integration time was the biggest hurdle (average 6 months).'),
+            const SizedBox(height: 32),
+            const Text(
+              'Diagnostic Accuracy Comparison (%)',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  _buildBarChart(65, 'Human Only', Colors.blueGrey),
+                  _buildBarChart(82, 'AI Only', Colors.lightBlue),
+                  _buildBarChart(94, 'Human + AI', const Color(0xFF1E3A8A)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+
+      // 8. Conclusion
+      SlideData(
+        title: 'Conclusion',
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildBulletPoint('Summary: The study confirms that AI is not a replacement for medical professionals, but a powerful augmentative tool. The "Human + AI" approach yields the highest diagnostic accuracy.'),
+            const SizedBox(height: 24),
+            _buildBulletPoint('Outcome: We successfully developed a proposed integration framework that reduces deployment time by an estimated 30%.'),
+            const SizedBox(height: 24),
+            _buildBulletPoint('Future Scope: Further research should focus on longitudinal studies of patient outcomes post-AI integration.'),
+            const Spacer(),
+            const Center(
+              child: Text(
+                'Thank You!',
+                style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
+              ),
+            ),
+            const SizedBox(height: 32),
+          ],
+        ),
+      ),
+    ];
+  }
+
+  Widget _buildInfoRow(IconData icon, String text) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 28, color: Colors.blueGrey),
+        const SizedBox(width: 16),
+        Text(text, style: const TextStyle(fontSize: 24)),
+      ],
+    );
+  }
+
+  Widget _buildBulletPoint(String text) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.only(top: 8.0, right: 16.0),
+          child: Icon(Icons.circle, size: 12, color: Color(0xFF1E3A8A)),
+        ),
+        Expanded(
+          child: Text(text, style: const TextStyle(fontSize: 22, height: 1.5)),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNumberedPoint(String number, String text) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 36,
+          height: 36,
+          decoration: const BoxDecoration(
+            color: Color(0xFF1E3A8A),
+            shape: BoxShape.circle,
+          ),
+          child: Center(
+            child: Text(number, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Text(text, style: const TextStyle(fontSize: 22, height: 1.5)),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLiteratureItem(String author, String finding) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(author, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A))),
+          const SizedBox(height: 8),
+          Text(finding, style: const TextStyle(fontSize: 20)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMethodologyCard(IconData icon, String title, String description) {
+    return Card(
+      elevation: 2,
+      color: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, size: 48, color: const Color(0xFF1E3A8A)),
+            const SizedBox(height: 16),
+            Text(title, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            const Divider(),
+            const SizedBox(height: 8),
+            Text(description, style: const TextStyle(fontSize: 18, height: 1.4)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBarChart(double percentage, String label, Color color) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Text('${percentage.toInt()}%', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        Container(
+          width: 80,
+          height: percentage * 3, // Scale factor for visual representation
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: const BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8)),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+      ],
+    );
+  }
+
+  void _nextPage() {
+    if (_currentPage < _slides.length - 1) {
+      _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+    }
+  }
+
+  void _previousPage() {
+    if (_currentPage > 0) {
+      _pageController.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
+      backgroundColor: Colors.grey.shade200,
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('You have pushed the button this many times:'),
-            Text('$_counter', style: Theme.of(context).textTheme.headlineMedium),
-          ],
+        child: AspectRatio(
+          aspectRatio: 16 / 9, // Standard presentation aspect ratio
+          child: Container(
+            margin: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                // Slide Content
+                Expanded(
+                  child: PageView.builder(
+                    controller: _pageController,
+                    onPageChanged: (index) {
+                      setState(() {
+                        _currentPage = index;
+                      });
+                    },
+                    itemCount: _slides.length,
+                    itemBuilder: (context, index) {
+                      final slide = _slides[index];
+                      return Padding(
+                        padding: const EdgeInsets.all(48.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (slide.title.isNotEmpty) ...[
+                              Text(
+                                slide.title,
+                                style: Theme.of(context).textTheme.headlineLarge,
+                              ),
+                              const SizedBox(height: 16),
+                              Container(height: 4, width: 100, color: const Color(0xFF1E3A8A)),
+                              const SizedBox(height: 40),
+                            ],
+                            Expanded(child: slide.content),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                
+                // Presentation Controls
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade50,
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(16),
+                      bottomRight: Radius.circular(16),
+                    ),
+                    border: Border(top: BorderSide(color: Colors.grey.shade200)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      TextButton.icon(
+                        onPressed: _currentPage > 0 ? _previousPage : null,
+                        icon: const Icon(Icons.arrow_back),
+                        label: const Text('Previous'),
+                      ),
+                      Text(
+                        'Slide ${_currentPage + 1} of ${_slides.length}',
+                        style: TextStyle(color: Colors.grey.shade600, fontWeight: FontWeight.w500),
+                      ),
+                      TextButton.icon(
+                        onPressed: _currentPage < _slides.length - 1 ? _nextPage : null,
+                        icon: const Icon(Icons.arrow_forward),
+                        label: const Text('Next'),
+                        iconAlignment: IconAlignment.end,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
+}
+
+class SlideData {
+  final String title;
+  final Widget content;
+
+  SlideData({required this.title, required this.content});
 }
